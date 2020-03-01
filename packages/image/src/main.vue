@@ -15,7 +15,7 @@
       :src="src"
       :style="imageStyle"
       :class="{ 'el-image__inner--center': alignCenter, 'el-image__preview': preview }">
-    <template v-if="preview">
+    <template v-if="preview && show">
       <image-viewer :z-index="zIndex" :initial-index="imageIndex" v-show="showViewer" :on-close="closeViewer" :url-list="previewSrcList"/>
     </template>
   </div>
