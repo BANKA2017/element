@@ -16,7 +16,7 @@
       :style="imageStyle"
       :class="{ 'el-image__inner--center': alignCenter, 'el-image__preview': preview }">
     <template v-if="preview && showViewer">
-      <image-viewer :z-index="zIndex" :initial-index="imageIndex" v-show="showViewer" :on-close="closeViewer" :url-list="previewSrcList"/>
+      <image-viewer :z-index="zIndex" :initial-index="imageIndex" v-if="showViewer" :on-close="closeViewer" :url-list="previewSrcList"/>
     </template>
   </div>
 </template>
@@ -148,6 +148,7 @@
         this.imageWidth = img.width;
         this.imageHeight = img.height;
         this.loading = false;
+        this.error = false;
       },
       handleError(e) {
         this.loading = false;
@@ -202,7 +203,8 @@
 
         if (!imageWidth || !imageHeight || !containerWidth || !containerHeight) return {};
 
-        const vertical = imageWidth / imageHeight < 1;
+        const imageAspectRatio = imageWidth / imageHeight;
+        const containerAspectRatio = containerWidth / containerHeight;
 
         if (fit === ObjectFit.SCALE_DOWN) {
           const isSmaller = imageWidth < containerWidth && imageHeight < containerHeight;
@@ -213,14 +215,18 @@
           case ObjectFit.NONE:
             return { width: 'auto', height: 'auto' };
           case ObjectFit.CONTAIN:
-            return vertical ? { width: 'auto' } : { height: 'auto' };
+            return (imageAspectRatio < containerAspectRatio) ? { width: 'auto' } : { height: 'auto' };
           case ObjectFit.COVER:
-            return vertical ? { height: 'auto' } : { width: 'auto' };
+            return (imageAspectRatio < containerAspectRatio) ? { height: 'auto' } : { width: 'auto' };
           default:
             return {};
         }
       },
       clickHandler() {
+        // don't show viewer when preview is false
+        if (!this.preview) {
+          return;
+        }
         // prevent body scroll
         prevOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
